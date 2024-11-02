@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>الإدارة المدرسية الذكية</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; color: #333; }
+        .chat-container { width: 300px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; }
+        .result { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <h2>الإدارة المدرسية الذكية</h2>
+    <label>رقم الطالب المدرسي:</label>
+    <input type="text" id="studentID" required>
+    <label>الرمز السري:</label>
+    <input type="password" id="password" required>
+    <button onclick="getStudentData()">عرض بيانات الطالب</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+    function getStudentData() {
+        const studentID = document.getElementById('studentID').value;
+        const password = document.getElementById('password').value;
+
+        fetch('http://localhost:3000/student-data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ studentID, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('result').innerHTML = `<p style="color:red;">${data.error}</p>`;
+            } else {
+                document.getElementById('result').innerHTML = `
+                    <h3>اسم الطالب: ${data.name}</h3>
+                    <p><strong>الدرجات:</strong></p>
+                    <ul>
+                        <li>التربية الاسلامية: ${data.grades.islamicStudies}</li>
+                        <li>اللغة العربية: ${data.grades.arabic}</li>
+                        <li>اللغة الإنجليزية: ${data.grades.english}</li>
+                        <li>الرياضيات: ${data.grades.math}</li>
+                        <li>العلوم العامة: ${data.grades.science}</li>
+                        <li>الدراسات الاجتماعية: ${data.grades.socialStudies}</li>
+                        <li>الرياضة المدرسية: ${data.grades.physicalEducation}</li>
+                        <li>الفنون التشكيلية: ${data.grades.arts}</li>
+                        <li>الفنون الموسيقية: ${data.grades.music}</li>
+                    </ul>
+                    <p><strong>المجموع الكلي:</strong> ${data.totalScore}</p>
+                    <p><strong>جدول الحصص:</strong> ${data.schedule}</p>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('result').innerHTML = '<p style="color:red;">حدث خطأ أثناء معالجة الطلب.</p>';
+        });
+    }
+</script>
+
+</body>
+</html>
